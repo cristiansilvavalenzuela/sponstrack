@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SponsTrack Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#07080A;--surface:#0D0F13;--card:#131619;--card2:#191C21;
+  --border:#1C1F26;--border2:#262B34;
+  --accent:#C8F135;--accent-d:rgba(200,241,53,.13);
+  --red:#FF4F33;--red-d:rgba(255,79,51,.12);
+  --blue:#38B6FF;--blue-d:rgba(56,182,255,.12);
+  --gold:#F5A623;--gold-d:rgba(245,166,35,.12);
+  --green:#2ECC71;--green-d:rgba(46,204,113,.12);
+  --text:#EDF0F5;--text2:#8D96A8;--text3:#464E5C;
+  --font-d:'Bebas Neue',sans-serif;
+  --font-b:'DM Sans',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+  --r:8px;--r2:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ══ LOGIN ══ */
+#loginScreen{align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
+.login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(200,241,53,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(200,241,53,.035) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.login-orb{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(200,241,53,.08) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+.login-box{position:relative;z-index:2;width:420px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);padding:48px 40px;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:slideUp .6s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+.login-logo{font-family:var(--font-d);font-size:32px;letter-spacing:3px;text-align:center;margin-bottom:6px}
+.login-logo span{color:var(--accent)}
+.login-sub{font-family:var(--font-m);font-size:10px;letter-spacing:.2em;color:var(--text3);text-align:center;text-transform:uppercase;margin-bottom:36px}
+.login-tabs{display:flex;gap:2px;margin-bottom:28px;background:var(--card);padding:4px;border-radius:var(--r)}
+.ltab{flex:1;padding:9px;border:none;background:none;font-family:var(--font-m);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);cursor:pointer;border-radius:6px;transition:all .2s}
+.ltab.active{background:var(--card2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.login-role-badge{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--accent-d);border:1px solid rgba(200,241,53,.2);border-radius:var(--r);margin-bottom:20px}
+.rb-icon{font-size:20px}
+.rb-title{font-weight:600;font-size:13px;color:var(--text)}
+.rb-text{font-size:12px;color:var(--text2)}
+.form-field{margin-bottom:16px}
+.form-field label{display:block;font-family:var(--font-m);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text2);margin-bottom:6px}
+.form-field input{width:100%;background:var(--card);border:1px solid var(--border2);color:var(--text);font-family:var(--font-b);font-size:14px;padding:11px 14px;border-radius:var(--r);outline:none;transition:border-color .2s}
+.form-field input:focus{border-color:var(--accent)}
+.btn-login{width:100%;background:var(--accent);color:var(--bg);border:none;font-family:var(--font-m);font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:14px;border-radius:var(--r);cursor:pointer;transition:all .2s;margin-top:8px}
+.btn-login:hover{background:#d6ff45;transform:translateY(-1px)}
+.login-hint{margin-top:20px;padding:12px 14px;background:var(--card);border-radius:var(--r);font-size:12px;color:var(--text3);border:1px solid var(--border)}
+.login-hint strong{color:var(--text2)}
+.login-error{background:var(--red-d);border:1px solid rgba(255,79,51,.3);color:var(--red);font-size:12px;padding:10px 14px;border-radius:var(--r);margin-top:12px;display:none}
+
+/* ══ PLATFORM LAYOUT ══ */
+.platform{display:flex;width:100%;min-height:100vh}
+.sidebar{width:248px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-logo{padding:24px 20px 18px;border-bottom:1px solid var(--border)}
+.sb-wordmark{font-family:var(--font-d);font-size:24px;letter-spacing:2px}
+.sb-wordmark span{color:var(--accent)}
+.sb-tagline{font-family:var(--font-m);font-size:9px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase;margin-top:2px}
+.sb-user{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-d);border:1px solid rgba(200,241,53,.3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sb-user-name{font-size:13px;font-weight:600;line-height:1.2}
+.sb-user-role{font-family:var(--font-m);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em}
+.sb-nav{padding:12px 10px;flex:1}
+.sb-section{font-family:var(--font-m);font-size:9px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase;padding:10px 10px 6px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left}
+.sb-item:hover{background:var(--card);color:var(--text)}
+.sb-item.active{background:var(--accent-d);color:var(--accent)}
+.sb-item .si-icon{font-size:16px;width:20px;text-align:center}
+.sb-item .si-badge{margin-left:auto;background:var(--accent);color:var(--bg);font-family:var(--font-m);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
+.sb-item .si-notif{margin-left:auto;background:var(--red);color:white;font-family:var(--font-m);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
+.sb-bottom{padding:14px 20px;border-top:1px solid var(--border)}
+.btn-logout{width:100%;background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--font-m);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:9px;border-radius:var(--r);cursor:pointer;transition:all .2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+.main-area{flex:1;overflow:auto;display:flex;flex-direction:column}
+.topbar{padding:18px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(7,8,10,.85);backdrop-filter:blur(16px);position:sticky;top:0;z-index:50}
+.tb-title{font-family:var(--font-d);font-size:20px;letter-spacing:1px}
+.tb-sub{font-family:var(--font-m);font-size:9px;color:var(--text3);letter-spacing:.12em;margin-top:2px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.pill{display:flex;align-items:center;gap:6px;font-family:var(--font-m);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:20px}
+.pill.green{background:var(--green-d);border:1px solid rgba(46,204,113,.25);color:var(--green)}
+.pill.gold{background:var(--gold-d);border:1px solid rgba(245,166,35,.25);color:var(--gold)}
+.dot{width:6px;height:6px;border-radius:50%;animation:pulse 2s infinite}
+.dot.green{background:var(--green)}
+.dot.gold{background:var(--gold)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.btn-primary{background:var(--accent);color:var(--bg);border:none;font-family:var(--font-m);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:9px 18px;border-radius:var(--r);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-primary:hover{background:#d6ff45;transform:translateY(-1px)}
+.btn-sec{background:var(--card2);border:1px solid var(--border2);color:var(--text);font-family:var(--font-m);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border-radius:var(--r);cursor:pointer;transition:all .2s}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent)}
+.page{padding:28px 32px;flex:1;display:none}
+.page.active{display:block}
+
+/* ══ COMPONENTS ══ */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+.panel-hd{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-family:var(--font-m);font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--text2)}
+.panel-meta{font-family:var(--font-m);font-size:10px;color:var(--text3)}
+.panel-bd{padding:22px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.mb{margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px 20px;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
+.kpi:hover{border-color:var(--border2);transform:translateY(-2px)}
+.kpi.hi{border-color:rgba(200,241,53,.25)}
+.kpi.hi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+.kpi-icon{font-size:18px;margin-bottom:12px}
+.kpi-val{font-family:var(--font-d);font-size:36px;line-height:1;color:var(--text)}
+.kpi-val.acc{color:var(--accent)}
+.kpi-val.grn{color:var(--green)}
+.kpi-label{font-family:var(--font-m);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-top:5px}
+.kpi-trend{font-size:11px;color:var(--green);margin-top:6px}
+.sdiv{display:flex;align-items:center;gap:12px;margin:26px 0 16px}
+.sdiv span{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--text3);white-space:nowrap}
+.sdiv::before,.sdiv::after{content:'';flex:1;height:1px;background:var(--border)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
+.tbl td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--card2);color:var(--text)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-m);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.badge.active{background:var(--green-d);border:1px solid rgba(46,204,113,.25);color:var(--green)}
+.badge.draft{background:var(--gold-d);border:1px solid rgba(245,166,35,.25);color:var(--gold)}
+.badge.archived{background:var(--card2);border:1px solid var(--border2);color:var(--text3)}
+.badge.unread{background:var(--red-d);border:1px solid rgba(255,79,51,.25);color:var(--red)}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px;border-radius:var(--r);transition:all .15s}
+.icon-btn:hover{background:var(--card2);color:var(--text)}
+
+/* ══ MODAL ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);width:600px;max-height:88vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.7);transform:translateY(24px);transition:transform .25s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-hd{padding:26px 30px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-hd h2{font-family:var(--font-d);font-size:22px;letter-spacing:1px}
+.modal-close{background:var(--card);border:1px solid var(--border2);color:var(--text2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--red);color:white;border-color:var(--red)}
+.modal-bd{padding:24px 30px}
+.modal-ft{padding:18px 30px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.msec{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--accent);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.msec:first-child{margin-top:0}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup.span2{grid-column:1/-1}
+.fgroup label{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2)}
+.fgroup input,.fgroup select,.fgroup textarea{background:var(--card);border:1px solid var(--border2);color:var(--text);font-family:var(--font-b);font-size:13px;padding:10px 12px;border-radius:var(--r);outline:none;transition:border-color .2s;width:100%}
+.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{border-color:var(--accent)}
+.fgroup select option{background:var(--card)}
+.fgroup textarea{resize:vertical;min-height:64px}
+.btn-cancel{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--font-m);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:9px 18px;border-radius:var(--r);cursor:pointer;transition:all .2s}
+.btn-cancel:hover{border-color:var(--text2);color:var(--text)}
+
+/* ══ EVENT CARDS ══ */
+.event-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s,transform .2s;cursor:pointer}
+.event-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.ec-top{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
+.ec-type{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin-bottom:4px}
+.ec-name{font-family:var(--font-d);font-size:20px;letter-spacing:.5px;line-height:1.1;margin-bottom:6px}
+.ec-date{font-size:12px;color:var(--text2)}
+.ec-bottom{padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.ec-sp-pill{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.1em;background:var(--card2);border:1px solid var(--border2);color:var(--text2);padding:3px 9px;border-radius:20px}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-state .ei{font-size:48px;margin-bottom:16px}
+.empty-state p{font-size:14px;margin-bottom:20px}
+
+/* ══ REPORT VIEW ══ */
+.report-sponsor-hd{display:flex;align-items:center;justify-content:space-between;padding:24px 28px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:18px;position:relative;overflow:hidden}
+.report-sponsor-hd::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.rsh-left{display:flex;align-items:center;gap:18px}
+.rsh-icon{width:56px;height:56px;background:var(--card2);border:1px solid var(--border2);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:26px}
+.rsh-name{font-family:var(--font-d);font-size:28px;letter-spacing:1px}
+.rsh-meta{font-size:12px;color:var(--text2);margin-top:2px}
+.rsh-nivel{font-family:var(--font-m);font-size:9px;background:var(--card2);border:1px solid var(--border2);color:var(--text3);padding:2px 8px;border-radius:4px;margin-left:8px}
+.score-box{text-align:right}
+.score-lbl{font-family:var(--font-m);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.15em;margin-bottom:2px}
+.score-big{font-family:var(--font-d);font-size:56px;color:var(--accent);line-height:1}
+.score-max{font-size:18px;color:var(--text3)}
+.score-grade{font-family:var(--font-m);font-size:10px;color:var(--green);background:var(--green-d);border:1px solid rgba(46,204,113,.2);padding:3px 10px;border-radius:20px;display:inline-block;margin-top:4px}
+.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;background:var(--card2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;transition:border-color .2s}
+.insight:hover{border-color:var(--border2)}
+.insight-ico{font-size:20px;flex-shrink:0;margin-top:1px}
+.insight-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.insight-body{font-size:12px;color:var(--text2);line-height:1.5}
+.roi-row{display:flex;align-items:center;gap:24px;margin-bottom:20px}
+.roi-block{flex:1;text-align:center}
+.roi-lbl{font-family:var(--font-m);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}
+.roi-num{font-family:var(--font-d);font-size:44px;line-height:1}
+.roi-num.acc{color:var(--accent)}
+.roi-num.grn{color:var(--green)}
+.roi-num.org{color:var(--gold)}
+.roi-sep{width:1px;height:50px;background:var(--border2)}
+.roi-verdict{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--green-d);border:1px solid rgba(46,204,113,.2);border-radius:var(--r);font-size:12px;color:var(--text2)}
+.aud-row{margin-bottom:12px}
+.aud-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px}
+.aud-lbl span{font-family:var(--font-m);color:var(--text)}
+.aud-bar{height:5px;background:var(--border2);border-radius:3px;overflow:hidden}
+.aud-fill{height:100%;border-radius:3px}
+.comp-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.comp-row:last-child{border-bottom:none}
+.comp-rank{font-family:var(--font-d);font-size:20px;color:var(--text3);width:24px;flex-shrink:0}
+.comp-rank.first{color:var(--accent)}
+.comp-name{flex:1;font-size:13px;font-weight:500}
+.comp-bar-wrap{width:100px}
+.comp-bar{height:5px;background:var(--border2);border-radius:3px;overflow:hidden}
+.comp-fill{height:100%;border-radius:3px}
+.comp-score{font-family:var(--font-m);font-size:11px;color:var(--text2);width:42px;text-align:right}
+.tl-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:6px;flex-shrink:0;box-shadow:0 0 6px var(--accent)}
+.tl-dot.dim{background:var(--border2);box-shadow:none}
+.tl-time{font-family:var(--font-m);font-size:10px;color:var(--text3)}
+.tl-t{font-size:13px;font-weight:500;color:var(--text)}
+.tl-v{font-family:var(--font-m);font-size:11px;color:var(--accent);margin-top:2px}
+.ch220{position:relative;height:220px}
+.ch180{position:relative;height:180px}
+.ch260{position:relative;height:260px}
+.vtbl{width:100%;border-collapse:collapse}
+.vtbl th{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+.vtbl td{padding:11px 12px;font-size:12px;border-bottom:1px solid var(--border);color:var(--text2)}
+.vtbl tr:last-child td{border-bottom:none}
+.vtbl tr:hover td{background:var(--card2);color:var(--text)}
+.vtbl .vm{font-family:var(--font-m);font-size:13px;color:var(--text);font-weight:600}
+.vbar{height:4px;background:var(--border2);border-radius:2px;margin-top:4px;overflow:hidden}
+.vbar-f{height:100%;background:var(--accent);border-radius:2px}
+
+/* ══ CLIENT WELCOME ══ */
+.client-welcome{background:linear-gradient(135deg,var(--card) 0%,rgba(200,241,53,.04) 100%);border:1px solid var(--border);border-radius:var(--r);padding:32px;margin-bottom:24px;position:relative;overflow:hidden}
+.client-welcome::after{content:'CONFIDENCIAL';position:absolute;right:-20px;top:20px;font-family:var(--font-d);font-size:80px;color:rgba(200,241,53,.03);letter-spacing:4px;transform:rotate(-10deg);pointer-events:none}
+.cw-event{font-family:var(--font-m);font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px}
+.cw-title{font-family:var(--font-d);font-size:36px;letter-spacing:1px;margin-bottom:6px}
+.cw-sub{font-size:13px;color:var(--text2)}
+
+/* ══ PRICING PAGE ══ */
+.pricing-hero{text-align:center;padding:48px 0 40px;border-bottom:1px solid var(--border);margin-bottom:36px}
+.pricing-hero h1{font-family:var(--font-d);font-size:56px;letter-spacing:2px;line-height:1;margin-bottom:12px}
+.pricing-hero p{font-size:16px;color:var(--text2);max-width:480px;margin:0 auto}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:40px}
+.plan-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:36px 28px;position:relative;transition:border-color .2s,transform .2s}
+.plan-card:hover{transform:translateY(-4px)}
+.plan-card.featured{border-color:var(--accent);background:linear-gradient(135deg,var(--card) 0%,rgba(200,241,53,.05) 100%)}
+.plan-card.featured::before{content:'MÁS POPULAR';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--bg);font-family:var(--font-m);font-size:9px;font-weight:700;letter-spacing:.15em;padding:4px 14px;border-radius:0 0 var(--r) var(--r)}
+.plan-name{font-family:var(--font-d);font-size:28px;letter-spacing:1px;margin-bottom:6px}
+.plan-desc{font-size:13px;color:var(--text2);margin-bottom:24px;min-height:40px}
+.plan-price{margin-bottom:28px}
+.plan-price .amount{font-family:var(--font-d);font-size:52px;line-height:1;color:var(--text)}
+.plan-price .currency{font-family:var(--font-m);font-size:14px;color:var(--text3);vertical-align:super}
+.plan-price .period{font-family:var(--font-m);font-size:11px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.plan-price.featured-price .amount{color:var(--accent)}
+.plan-features{list-style:none;margin-bottom:32px}
+.plan-features li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);padding:8px 0;border-bottom:1px solid var(--border)}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px}
+.plan-features li.no::before{content:'✗';color:var(--text3)}
+.plan-features li.no{color:var(--text3)}
+.plan-cta{width:100%;padding:13px;border-radius:var(--r);font-family:var(--font-m);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:var(--card2);color:var(--text)}
+.plan-cta:hover{border-color:var(--accent);color:var(--accent)}
+.plan-cta.featured-cta{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.plan-cta.featured-cta:hover{background:#d6ff45}
+.pricing-faq{max-width:680px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0}
+.faq-q{font-size:15px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-q span{font-family:var(--font-m);font-size:18px;color:var(--text3);transition:transform .2s}
+.faq-a{font-size:13px;color:var(--text2);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,margin-top .3s}
+.faq-item.open .faq-a{max-height:200px;margin-top:12px}
+.faq-item.open .faq-q span{transform:rotate(45deg);color:var(--accent)}
+
+/* ══ CONTACT FORM ══ */
+.contact-wrapper{max-width:680px;margin:0 auto}
+.contact-hero{text-align:center;padding:40px 0 36px}
+.contact-hero h1{font-family:var(--font-d);font-size:52px;letter-spacing:2px;margin-bottom:10px}
+.contact-hero p{font-size:15px;color:var(--text2)}
+.contact-form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:36px;margin-bottom:24px}
+.contact-success{display:none;text-align:center;padding:48px;background:var(--green-d);border:1px solid rgba(46,204,113,.2);border-radius:var(--r2)}
+.contact-success .cs-icon{font-size:56px;margin-bottom:16px}
+.contact-success h2{font-family:var(--font-d);font-size:32px;letter-spacing:1px;margin-bottom:10px}
+.contact-success p{color:var(--text2);font-size:14px}
+.contact-info{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.ci-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center}
+.ci-icon{font-size:24px;margin-bottom:8px}
+.ci-label{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin-bottom:4px}
+.ci-val{font-size:13px;font-weight:500;color:var(--text2)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.full{grid-template-columns:1fr}
+.ff{display:flex;flex-direction:column;gap:6px}
+.ff label{font-family:var(--font-m);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2)}
+.ff input,.ff select,.ff textarea{background:var(--card2);border:1px solid var(--border2);color:var(--text);font-family:var(--font-b);font-size:14px;padding:12px 14px;border-radius:var(--r);outline:none;transition:border-color .2s;width:100%}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--accent)}
+.ff textarea{resize:vertical;min-height:100px}
+.ff select option{background:var(--card)}
+
+/* ══ NOTIFICATIONS ══ */
+.notif-list{display:flex;flex-direction:column;gap:10px}
+.notif-item{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);transition:border-color .2s;cursor:pointer;position:relative}
+.notif-item:hover{border-color:var(--border2)}
+.notif-item.unread{border-left:3px solid var(--accent)}
+.notif-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.notif-content{flex:1}
+.notif-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.notif-body{font-size:12px;color:var(--text2);line-height:1.5}
+.notif-time{font-family:var(--font-m);font-size:10px;color:var(--text3);margin-top:6px}
+.notif-unread-dot{position:absolute;top:18px;right:18px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.notif-actions{display:flex;gap:8px;margin-top:16px}
+.send-notif-form{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:24px}
+.send-notif-form h3{font-family:var(--font-d);font-size:22px;letter-spacing:1px;margin-bottom:20px}
+
+/* ══ PRINT / PDF ══ */
+@media print{
+  .sidebar,.topbar,.btn-primary,.btn-sec,.icon-btn,.modal-overlay,.sb-bottom,
+  .tb-right,.pdf-toolbar,#loginScreen,#adminScreen,.notif-actions,.send-notif-form,
+  button:not(.pdf-ok){display:none!important}
+  body,html{background:white!important;color:#111!important;font-size:13px}
+  .screen,.platform,.main-area{display:block!important;min-height:auto}
+  .page{padding:0!important;display:block!important}
+  .panel,.kpi,.event-card,.client-welcome,.report-sponsor-hd{background:white!important;border:1px solid #ddd!important;break-inside:avoid}
+  .kpi-val,.score-big,.plan-price .amount{color:#111!important}
+  .kpi-val.acc,.score-big,.roi-num.acc{color:#5a8c00!important}
+  .kpi-val.grn,.roi-num.grn,.kpi-trend,.score-grade{color:#1a7a45!important}
+  .text2,.text3,.panel-title,.kpi-label,.tl-time,.notif-time,.comp-score{color:#666!important}
+  .tl-dot{background:#5a8c00!important;box-shadow:none!important}
+  .aud-fill,.comp-fill,.vbar-f{background:#5a8c00!important}
+  .g4{grid-template-columns:repeat(4,1fr)!important}
+  .g2,.g3{grid-template-columns:repeat(2,1fr)!important}
+  canvas{max-height:160px!important}
+  .ch220,.ch180,.ch260{height:160px!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-grid"></div>
+  <div class="login-orb"></div>
+  <div class="login-box">
+    <div class="login-logo">SPONS<span>TRACK</span></div>
+    <div class="login-sub">Sponsor Intelligence Platform</div>
+    <div class="login-tabs">
+      <button class="ltab active" onclick="switchLoginTab('admin')">Administrador</button>
+      <button class="ltab" onclick="switchLoginTab('client')">Cliente / Marca</button>
+    </div>
+    <div id="loginRoleBadge" class="login-role-badge">
+      <div class="rb-icon">⚙️</div>
+      <div><div class="rb-title">Acceso Administrador</div><div class="rb-text">Control total · Crea y gestiona eventos</div></div>
+    </div>
+    <div class="form-field"><label>Usuario</label><input type="text" id="loginUser" value="admin"/></div>
+    <div class="form-field"><label>Contraseña</label><input type="password" id="loginPass" value="admin123" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="btn-login" onclick="doLogin()">Ingresar →</button>
+    <div class="login-error" id="loginError">Usuario o contraseña incorrectos</div>
+    <div class="login-hint" id="loginHint">
+      <strong>Admin:</strong> admin / admin123 &nbsp;·&nbsp; <strong>Cliente:</strong> santander / marca123
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN ══ -->
+<div id="adminScreen" class="screen">
+  <div class="platform">
+    <aside class="sidebar">
+      <div class="sb-logo"><div class="sb-wordmark">SPONS<span>TRACK</span></div><div class="sb-tagline">Admin Panel</div></div>
+      <div class="sb-user"><div class="sb-avatar">⚙️</div><div><div class="sb-user-name">Administrador</div><div class="sb-user-role">Control total</div></div></div>
+      <nav class="sb-nav">
+        <div class="sb-section">Principal</div>
+        <button class="sb-item active" onclick="adminPage('overview',this)"><span class="si-icon">📊</span>Dashboard</button>
+        <button class="sb-item" onclick="adminPage('events',this)"><span class="si-icon">🗓</span>Eventos<span class="si-badge" id="evBadge">0</span></button>
+        <button class="sb-item" onclick="adminPage('clients',this)"><span class="si-icon">👥</span>Clientes</button>
+        <button class="sb-item" onclick="adminPage('notifications',this)"><span class="si-icon">🔔</span>Notificaciones<span class="si-notif" id="notifBadge" style="display:none">0</span></button>
+        <div class="sb-section">Producto</div>
+        <button class="sb-item" onclick="adminPage('pricing',this)"><span class="si-icon">💳</span>Página de Precios</button>
+        <button class="sb-item" onclick="adminPage('contact',this)"><span class="si-icon">📬</span>Solicitudes Demo</button>
+        <div class="sb-section">Sistema</div>
+        <button class="sb-item" onclick="adminPage('settings',this)"><span class="si-icon">🔧</span>Configuración</button>
+      </nav>
+      <div class="sb-bottom"><button class="btn-logout" onclick="logout()">← Cerrar sesión</button></div>
+    </aside>
+    <div class="main-area">
+      <div class="topbar">
+        <div><div class="tb-title" id="adminPageTitle">DASHBOARD</div><div class="tb-sub" id="adminPageSub">Vista general del sistema</div></div>
+        <div class="tb-right">
+          <div class="pill green"><div class="dot green"></div>Sistema activo</div>
+          <button class="btn-primary" id="adminMainBtn" onclick="openNewEventModal()">＋ Nuevo Evento</button>
+        </div>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div id="adminOverview" class="page active">
+        <div class="g4 mb" id="adminKpis"></div>
+        <div class="sdiv"><span>Eventos recientes</span></div>
+        <div id="eventsList"></div>
+      </div>
+
+      <!-- EVENTS -->
+      <div id="adminEvents" class="page">
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Todos los eventos</span><span class="panel-meta" id="evCount">0 eventos</span></div>
+          <div style="overflow-x:auto"><table class="tbl" id="eventsTable">
+            <thead><tr><th>Evento</th><th>Fecha</th><th>Tipo</th><th>Sponsor</th><th>Inversión</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="eventsTableBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- CLIENTS -->
+      <div id="adminClients" class="page">
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Accesos de clientes</span><button class="btn-primary" onclick="openNewClientModal()">＋ Nuevo cliente</button></div>
+          <div style="overflow-x:auto"><table class="tbl">
+            <thead><tr><th>Marca</th><th>Usuario</th><th>Contraseña</th><th>Evento</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="clientsTableBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div id="adminNotifications" class="page">
+        <div class="send-notif-form">
+          <h3>ENVIAR NOTIFICACIÓN</h3>
+          <div class="form-row">
+            <div class="ff"><label>Destinatario</label>
+              <select id="notif_dest"><option value="all">Todos los clientes</option></select>
+            </div>
+            <div class="ff"><label>Tipo</label>
+              <select id="notif_tipo">
+                <option value="report">📊 Reporte listo</option>
+                <option value="update">🔄 Actualización de datos</option>
+                <option value="renewal">🎯 Recordatorio de renovación</option>
+                <option value="info">ℹ️ Información general</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="ff"><label>Mensaje</label>
+              <textarea id="notif_msg" rows="3" placeholder="Tu reporte del evento está listo para revisar..."></textarea>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="sendNotification()" style="margin-top:4px">📤 Enviar notificación</button>
+        </div>
+        <div class="sdiv"><span>Historial de notificaciones</span></div>
+        <div id="adminNotifList" class="notif-list"></div>
+      </div>
+
+      <!-- PRICING PAGE -->
+      <div id="adminPricing" class="page">
+        <div class="pricing-hero">
+          <h1>PLANES & PRECIOS</h1>
+          <p>Medición real de sponsorship para marcas que exigen resultados verificables.</p>
+        </div>
+        <div class="plans-grid">
+          <!-- Starter -->
+          <div class="plan-card">
+            <div class="plan-name">STARTER</div>
+            <div class="plan-desc">Para marcas que quieren dar el primer paso hacia datos reales.</div>
+            <div class="plan-price">
+              <div><span class="currency">$</span><span class="amount">490</span></div>
+              <div class="period">USD por evento</div>
+            </div>
+            <ul class="plan-features">
+              <li>1 sponsor por evento</li>
+              <li>Dashboard de reporte online</li>
+              <li>Métricas de visibilidad básicas</li>
+              <li>Exportación PDF</li>
+              <li>Acceso cliente 30 días</li>
+              <li class="no">Análisis de video</li>
+              <li class="no">Comparativa histórica</li>
+              <li class="no">Soporte prioritario</li>
+            </ul>
+            <button class="plan-cta" onclick="adminPage('contact',null)">Solicitar Demo</button>
+          </div>
+          <!-- Pro -->
+          <div class="plan-card featured">
+            <div class="plan-name">PRO</div>
+            <div class="plan-desc">El plan preferido por agencias y organizadores de eventos regulares.</div>
+            <div class="plan-price featured-price">
+              <div><span class="currency">$</span><span class="amount">990</span></div>
+              <div class="period">USD por evento</div>
+            </div>
+            <ul class="plan-features">
+              <li>Hasta 5 sponsors por evento</li>
+              <li>Dashboard premium + comparativa</li>
+              <li>Métricas completas (visibilidad + engagement)</li>
+              <li>Exportación PDF ejecutivo</li>
+              <li>Acceso cliente 90 días</li>
+              <li>Análisis de video (hasta 3h)</li>
+              <li>Historial de eventos</li>
+              <li class="no">Soporte prioritario</li>
+            </ul>
+            <button class="plan-cta featured-cta" onclick="adminPage('contact',null)">Solicitar Demo</button>
+          </div>
+          <!-- Enterprise -->
+          <div class="plan-card">
+            <div class="plan-name">ENTERPRISE</div>
+            <div class="plan-desc">Para festivales, ligas deportivas y marcas con múltiples activaciones.</div>
+            <div class="plan-price">
+              <div><span class="amount" style="font-size:38px">A medida</span></div>
+              <div class="period">Contrato anual personalizado</div>
+            </div>
+            <ul class="plan-features">
+              <li>Sponsors ilimitados</li>
+              <li>Dashboard white-label con tu marca</li>
+              <li>Análisis de video ilimitado</li>
+              <li>Conexión a transmisión en vivo</li>
+              <li>API de datos para integración</li>
+              <li>Reportes automáticos post-evento</li>
+              <li>Gerente de cuenta dedicado</li>
+              <li>SLA y soporte 24/7</li>
+            </ul>
+            <button class="plan-cta" onclick="adminPage('contact',null)">Agendar Reunión</button>
+          </div>
+        </div>
+        <div class="sdiv"><span>Preguntas frecuentes</span></div>
+        <div class="pricing-faq">
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">¿Cómo se calculan las impresiones? <span>+</span></div>
+            <div class="faq-a">Las impresiones se calculan combinando datos de asistencia real del evento, tiempo de exposición del logo en pantalla, alcance en redes sociales (menciones orgánicas + UGC) y cobertura de vallas físicas. Cada canal tiene su propio modelo de valoración basado en benchmarks del sector.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">¿El análisis de video está disponible ahora? <span>+</span></div>
+            <div class="faq-a">El análisis automático de video mediante visión computacional está en desarrollo y estará disponible en el plan Pro a partir del Q3 2025. Por ahora, el ingreso de datos es manual pero soportado por nuestra metodología de medición validada.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">¿Puedo ver el reporte antes de pagar? <span>+</span></div>
+            <div class="faq-a">Sí. Ofrecemos una demo gratuita con datos reales de un evento de muestra. Agenda tu demo y te mostramos exactamente lo que recibiría tu marca o tu cliente.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">¿Qué pasa si el evento se cancela? <span>+</span></div>
+            <div class="faq-a">Si el evento se cancela antes de que iniciemos el análisis, se realiza un crédito completo aplicable a otro evento. Si el análisis ya inició, se cobra proporcionalmente al trabajo realizado.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACT / DEMO REQUESTS -->
+      <div id="adminContact" class="page">
+        <div class="g2">
+          <div>
+            <div class="contact-hero" style="text-align:left;padding-top:0">
+              <h1>SOLICITUDES<br>DE DEMO</h1>
+              <p style="color:var(--text2);font-size:14px">Formulario de contacto desde la landing. Cada solicitud queda registrada aquí.</p>
+            </div>
+            <div class="panel">
+              <div class="panel-hd"><span class="panel-title">Solicitudes recibidas</span><span class="panel-meta" id="demoCount">0 solicitudes</span></div>
+              <div style="overflow-x:auto"><table class="tbl">
+                <thead><tr><th>Marca</th><th>Contacto</th><th>Plan</th><th>Fecha</th><th>Estado</th></tr></thead>
+                <tbody id="demoTableBody"></tbody>
+              </table></div>
+            </div>
+          </div>
+          <div>
+            <div class="panel" style="margin-bottom:18px">
+              <div class="panel-hd"><span class="panel-title">Simular solicitud entrante</span></div>
+              <div class="panel-bd">
+                <p style="font-size:12px;color:var(--text2);margin-bottom:16px">Este formulario es idéntico al que ven los visitantes en tu landing page.</p>
+                <div class="form-row"><div class="ff"><label>Nombre</label><input type="text" id="demo_nombre" placeholder="María González"/></div><div class="ff"><label>Empresa / Marca</label><input type="text" id="demo_empresa" placeholder="Coca-Cola Chile"/></div></div>
+                <div class="form-row"><div class="ff"><label>Email</label><input type="email" id="demo_email" placeholder="maria@cocacola.cl"/></div><div class="ff"><label>Teléfono</label><input type="text" id="demo_tel" placeholder="+56 9 1234 5678"/></div></div>
+                <div class="form-row"><div class="ff"><label>Plan de interés</label><select id="demo_plan"><option>Starter</option><option>Pro</option><option>Enterprise</option><option>Aún no lo sé</option></select></div><div class="ff"><label>Tipo de evento</label><select id="demo_tipo"><option>Concierto / Festival</option><option>Evento Deportivo</option><option>Activación Retail</option><option>Otro</option></select></div></div>
+                <div class="form-row full"><div class="ff"><label>Mensaje (opcional)</label><textarea id="demo_msg" placeholder="Cuéntanos sobre tu próximo evento o sponsorship..."></textarea></div></div>
+                <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="submitDemoRequest()">Enviar solicitud de demo →</button>
+                <div id="demoSuccess" style="display:none;margin-top:14px;padding:14px;background:var(--green-d);border:1px solid rgba(46,204,113,.2);border-radius:var(--r);font-size:13px;color:var(--green)">✅ Solicitud enviada correctamente. Aparecerá en la tabla.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="adminSettings" class="page">
+        <div class="g2">
+          <div class="panel">
+            <div class="panel-hd"><span class="panel-title">Cuenta administrador</span></div>
+            <div class="panel-bd">
+              <div class="fgroup" style="margin-bottom:14px"><label>Nombre del servicio</label><input type="text" value="SponsTrack"/></div>
+              <div class="fgroup" style="margin-bottom:14px"><label>Email de contacto</label><input type="text" value="hola@sponstrack.io"/></div>
+              <div class="fgroup" style="margin-bottom:14px"><label>Nueva contraseña admin</label><input type="password" placeholder="Nueva contraseña"/></div>
+              <button class="btn-primary" onclick="alert('✅ Configuración guardada')">Guardar cambios</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-hd"><span class="panel-title">Estado del sistema</span></div>
+            <div class="panel-bd">
+              <div class="insight" style="margin-bottom:10px"><div class="insight-ico">📦</div><div><div class="insight-title">Almacenamiento</div><div class="insight-body">Datos guardados en localStorage del navegador. Para producción, conectar a Supabase o Firebase.</div></div></div>
+              <div class="insight" style="margin-bottom:10px"><div class="insight-ico">🔐</div><div><div class="insight-title">Accesos de cliente</div><div class="insight-body">Cada cliente ve únicamente su reporte. Credenciales independientes por evento.</div></div></div>
+              <div class="insight"><div class="insight-ico">🚀</div><div><div class="insight-title">Siguiente paso</div><div class="insight-body">Sube este archivo a Vercel para tener una URL pública en 10 minutos. Gratis para empezar.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ CLIENT ══ -->
+<div id="clientScreen" class="screen">
+  <div class="platform">
+    <aside class="sidebar">
+      <div class="sb-logo"><div class="sb-wordmark">SPONS<span>TRACK</span></div><div class="sb-tagline">Portal de Marca</div></div>
+      <div class="sb-user"><div class="sb-avatar" id="cl_avatar">🏦</div><div><div class="sb-user-name" id="cl_name">Marca</div><div class="sb-user-role" id="cl_role">Sponsor</div></div></div>
+      <nav class="sb-nav">
+        <div class="sb-section">Mi Reporte</div>
+        <button class="sb-item active" onclick="clientPage('report',this)"><span class="si-icon">📊</span>Resumen ejecutivo</button>
+        <button class="sb-item" onclick="clientPage('roi',this)"><span class="si-icon">💰</span>ROI & Valor</button>
+        <button class="sb-item" onclick="clientPage('audience',this)"><span class="si-icon">👥</span>Audiencia</button>
+        <button class="sb-item" onclick="clientPage('insights',this)"><span class="si-icon">💡</span>Insights</button>
+        <button class="sb-item" onclick="clientPage('clientNotif',this)"><span class="si-icon">🔔</span>Notificaciones<span class="si-notif" id="clNotifBadge" style="display:none">0</span></button>
+      </nav>
+      <div class="sb-bottom">
+        <button class="btn-sec" onclick="exportPDF()" style="width:100%;margin-bottom:8px">🖨 Exportar PDF</button>
+        <button class="btn-logout" onclick="logout()">← Cerrar sesión</button>
+      </div>
+    </aside>
+    <div class="main-area">
+      <div class="topbar">
+        <div><div class="tb-title" id="cl_eventName">REPORTE</div><div class="tb-sub" id="cl_eventSub">Cargando...</div></div>
+        <div class="tb-right"><div class="pill gold"><div class="dot gold"></div>Reporte final</div><button class="btn-sec" onclick="exportPDF()">🖨 Exportar PDF</button></div>
+      </div>
+      <div id="clientReport" class="page active"><div id="cl_reportContent"></div></div>
+      <div id="clientRoi" class="page"><div id="cl_roiContent"></div></div>
+      <div id="clientAudience" class="page"><div id="cl_audContent"></div></div>
+      <div id="clientInsights" class="page"><div id="cl_insContent"></div></div>
+      <div id="clientClientNotif" class="page"><div id="cl_notifContent"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="newEventModal">
+  <div class="modal">
+    <div class="modal-hd"><h2>NUEVO EVENTO</h2><button class="modal-close" onclick="closeModal('newEventModal')">✕</button></div>
+    <div class="modal-bd">
+      <div class="msec">Información del Evento</div>
+      <div class="fg">
+        <div class="fgroup span2"><label>Nombre del evento *</label><input type="text" id="ne_nombre" placeholder="ej: Lollapalooza Chile 2025"/></div>
+        <div class="fgroup"><label>Fecha *</label><input type="date" id="ne_fecha"/></div>
+        <div class="fgroup"><label>Tipo</label><select id="ne_tipo"><option value="festival">🎵 Concierto / Festival</option><option value="deportivo">⚽ Evento Deportivo</option><option value="retail">🏪 Activación Retail</option><option value="corporativo">💼 Corporativo</option></select></div>
+        <div class="fgroup"><label>Lugar / Ciudad</label><input type="text" id="ne_lugar" placeholder="ej: Parque Bicentenario, Santiago"/></div>
+        <div class="fgroup"><label>Asistentes reales *</label><input type="number" id="ne_asistentes" placeholder="ej: 72000"/></div>
+      </div>
+      <div class="msec">Sponsor Principal</div>
+      <div class="fg">
+        <div class="fgroup"><label>Marca *</label><input type="text" id="ne_marca" placeholder="ej: Banco Santander"/></div>
+        <div class="fgroup"><label>Categoría</label><select id="ne_cat"><option>Banca y Finanzas</option><option>Bebidas</option><option>Telecomunicaciones</option><option>Tecnología</option><option>Retail</option><option>Automotriz</option><option>Otro</option></select></div>
+        <div class="fgroup"><label>Nivel</label><select id="ne_nivel"><option>Title Sponsor</option><option>Gold Sponsor</option><option>Silver Sponsor</option><option>Bronze Sponsor</option></select></div>
+        <div class="fgroup"><label>Inversión (CLP) *</label><input type="number" id="ne_inv" placeholder="ej: 85000000"/></div>
+      </div>
+      <div class="msec">Métricas de Visibilidad</div>
+      <div class="fg">
+        <div class="fgroup"><label>Segundos en pantalla</label><input type="number" id="ne_seg" placeholder="ej: 2847"/></div>
+        <div class="fgroup"><label>Puntos de contacto</label><input type="number" id="ne_vallas" placeholder="ej: 14"/></div>
+        <div class="fgroup"><label>Menciones RRSS</label><input type="number" id="ne_menciones" placeholder="ej: 3842"/></div>
+        <div class="fgroup"><label>Fotos con logo</label><input type="number" id="ne_fotos" placeholder="ej: 18600"/></div>
+      </div>
+    </div>
+    <div class="modal-ft"><button class="btn-cancel" onclick="closeModal('newEventModal')">Cancelar</button><button class="btn-primary" onclick="saveEvent()">⚡ Guardar Evento</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="newClientModal">
+  <div class="modal">
+    <div class="modal-hd"><h2>NUEVO CLIENTE</h2><button class="modal-close" onclick="closeModal('newClientModal')">✕</button></div>
+    <div class="modal-bd">
+      <div class="msec">Datos de acceso</div>
+      <div class="fg">
+        <div class="fgroup"><label>Nombre de la marca</label><input type="text" id="nc_marca" placeholder="ej: Coca-Cola"/></div>
+        <div class="fgroup"><label>Usuario (login)</label><input type="text" id="nc_user" placeholder="ej: cocacola"/></div>
+        <div class="fgroup"><label>Contraseña</label><input type="text" id="nc_pass" placeholder="ej: marca2025"/></div>
+        <div class="fgroup"><label>Evento asignado</label><select id="nc_evento"></select></div>
+        <div class="fgroup span2"><label>Sponsor en ese evento</label><input type="text" id="nc_sponsor" placeholder="Nombre exacto del sponsor en el evento"/></div>
+      </div>
+    </div>
+    <div class="modal-ft"><button class="btn-cancel" onclick="closeModal('newClientModal')">Cancelar</button><button class="btn-primary" onclick="saveClient()">✓ Crear acceso</button></div>
+  </div>
+</div>
+
+<script>
+// ══ DB ══
+const DB={
+  get events(){try{return JSON.parse(localStorage.getItem('st_events')||'[]')}catch{return[]}},
+  set events(v){localStorage.setItem('st_events',JSON.stringify(v))},
+  get clients(){try{return JSON.parse(localStorage.getItem('st_clients')||'[]')}catch{return[]}},
+  set clients(v){localStorage.setItem('st_clients',JSON.stringify(v))},
+  get notifications(){try{return JSON.parse(localStorage.getItem('st_notifs')||'[]')}catch{return[]}},
+  set notifications(v){localStorage.setItem('st_notifs',JSON.stringify(v))},
+  get demoRequests(){try{return JSON.parse(localStorage.getItem('st_demos')||'[]')}catch{return[]}},
+  set demoRequests(v){localStorage.setItem('st_demos',JSON.stringify(v))},
+};
+
+function seedIfEmpty(){
+  if(!DB.events.length){
+    DB.events=[
+      {id:'ev1',nombre:'Lollapalooza Chile 2025',fecha:'2025-03-29',tipo:'festival',lugar:'Parque Bicentenario, Santiago',asistentes:72000,marca:'Banco Santander',categoria:'Banca y Finanzas',nivel:'Title Sponsor',inversion:85000000,segundos:2847,vallas:14,menciones:3842,fotos:18600,status:'active',creado:new Date().toISOString()},
+      {id:'ev2',nombre:'Festival Estéreo Picnic',fecha:'2025-04-12',tipo:'festival',lugar:'Bogotá, Colombia',asistentes:45000,marca:'Claro',categoria:'Telecomunicaciones',nivel:'Gold Sponsor',inversion:55000000,segundos:1920,vallas:9,menciones:2100,fotos:9800,status:'active',creado:new Date().toISOString()},
+    ];
+  }
+  if(!DB.clients.length){
+    DB.clients=[
+      {id:'cl1',marca:'Banco Santander',user:'santander',pass:'marca123',eventoId:'ev1',sponsor:'Banco Santander',status:'active'},
+      {id:'cl2',marca:'Claro',user:'claro',pass:'marca456',eventoId:'ev2',sponsor:'Claro',status:'active'},
+    ];
+  }
+  if(!DB.notifications.length){
+    DB.notifications=[
+      {id:'n1',dest:'santander',tipo:'report',msg:'Tu reporte del Lollapalooza Chile 2025 ya está disponible. Ingresa para ver tus métricas completas.',fecha:new Date().toISOString(),read:false},
+      {id:'n2',dest:'all',tipo:'info',msg:'Bienvenido a SponsTrack. Tu plataforma de medición de sponsorships está lista.',fecha:new Date(Date.now()-86400000).toISOString(),read:false},
+    ];
+  }
+}
+
+// ══ AUTH ══
+let currentUser=null, loginRole='admin';
+
+function switchLoginTab(role){
+  loginRole=role;
+  document.querySelectorAll('.ltab').forEach((t,i)=>t.classList.toggle('active',(i===0&&role==='admin')||(i===1&&role==='client')));
+  const badge=document.getElementById('loginRoleBadge');
+  const hint=document.getElementById('loginHint');
+  if(role==='admin'){
+    badge.innerHTML='<div class="rb-icon">⚙️</div><div><div class="rb-title">Acceso Administrador</div><div class="rb-text">Control total · Crea y gestiona eventos</div></div>';
+    hint.innerHTML='<strong>Admin:</strong> admin / admin123 &nbsp;·&nbsp; <strong>Cliente:</strong> santander / marca123';
+    document.getElementById('loginUser').value='admin';
+    document.getElementById('loginPass').value='admin123';
+  } else {
+    badge.innerHTML='<div class="rb-icon">🏷</div><div><div class="rb-title">Acceso de Marca / Sponsor</div><div class="rb-text">Ve tu reporte exclusivo del evento</div></div>';
+    hint.innerHTML='<strong>Demo:</strong> santander / marca123 &nbsp;·&nbsp; claro / marca456';
+    document.getElementById('loginUser').value='santander';
+    document.getElementById('loginPass').value='marca123';
+  }
+}
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value.trim();
+  document.getElementById('loginError').style.display='none';
+  if(loginRole==='admin'){
+    if(u==='admin'&&p==='admin123'){currentUser={role:'admin'};showScreen('adminScreen');renderAdmin();}
+    else document.getElementById('loginError').style.display='block';
+  } else {
+    const c=DB.clients.find(c=>c.user===u&&c.pass===p&&c.status==='active');
+    if(c){currentUser={role:'client',client:c};showScreen('clientScreen');renderClient(c);}
+    else document.getElementById('loginError').style.display='block';
+  }
+}
+
+function logout(){currentUser=null;destroyAllCharts();showScreen('loginScreen')}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.toggle('active',s.id===id);s.style.display=s.id===id?'flex':'none'});
+}
+
+// ══ ADMIN ROUTING ══
+function adminPage(page,btn){
+  document.querySelectorAll('#adminScreen .sb-item').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('#adminScreen .page').forEach(p=>p.classList.remove('active'));
+  const pageEl=document.getElementById('admin'+cap(page));
+  if(pageEl)pageEl.classList.add('active');
+  const titles={overview:'DASHBOARD',events:'EVENTOS',clients:'CLIENTES',notifications:'NOTIFICACIONES',pricing:'PÁGINA DE PRECIOS',contact:'SOLICITUDES DE DEMO',settings:'CONFIGURACIÓN'};
+  const subs={overview:'Vista general',events:'Gestiona todos tus eventos',clients:'Accesos de marcas',notifications:'Comunícate con tus clientes',pricing:'Planes y precios del producto',contact:'Solicitudes de demo entrantes',settings:'Parámetros del sistema'};
+  document.getElementById('adminPageTitle').textContent=titles[page]||page.toUpperCase();
+  document.getElementById('adminPageSub').textContent=subs[page]||'';
+  const mainBtn=document.getElementById('adminMainBtn');
+  if(page==='overview'||page==='events'){mainBtn.textContent='＋ Nuevo Evento';mainBtn.onclick=openNewEventModal;mainBtn.style.display='flex';}
+  else if(page==='clients'){mainBtn.textContent='＋ Nuevo Cliente';mainBtn.onclick=openNewClientModal;mainBtn.style.display='flex';}
+  else mainBtn.style.display='none';
+  if(page==='notifications')renderAdminNotifications();
+  if(page==='contact')renderDemoTable();
+}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+// ══ ADMIN RENDER ══
+function renderAdmin(){
+  const evs=DB.events;
+  document.getElementById('evBadge').textContent=evs.length;
+  const unread=DB.notifications.filter(n=>!n.read).length;
+  const nb=document.getElementById('notifBadge');
+  nb.textContent=unread;nb.style.display=unread?'':'none';
+  const totalInv=evs.reduce((a,e)=>a+e.inversion,0);
+  const totalAtt=evs.reduce((a,e)=>a+e.asistentes,0);
+  document.getElementById('adminKpis').innerHTML=[
+    {icon:'🗓',val:evs.length,label:'Eventos activos',hi:false},
+    {icon:'👥',val:fmtNum(totalAtt),label:'Total asistentes',hi:false},
+    {icon:'💰',val:fmtCLP(totalInv),label:'Inversión gestionada',hi:true},
+    {icon:'🏷',val:DB.clients.length,label:'Clientes con acceso',hi:false},
+  ].map(k=>`<div class="kpi ${k.hi?'hi':''}"><div class="kpi-icon">${k.icon}</div><div class="kpi-val ${k.hi?'acc':''}">${k.val}</div><div class="kpi-label">${k.label}</div></div>`).join('');
+  renderEventsList();renderEventsTable();renderClientsTable();renderDemoTable();
+}
+
+function renderEventsList(){
+  const evs=DB.events, el=document.getElementById('eventsList');
+  if(!evs.length){el.innerHTML=`<div class="empty-state"><div class="ei">📭</div><p>Aún no hay eventos. Crea tu primero.</p><button class="btn-primary" onclick="openNewEventModal()">＋ Crear primer evento</button></div>`;return;}
+  const em={festival:'🎵',deportivo:'⚽',retail:'🏪',corporativo:'💼'};
+  el.innerHTML=`<div class="g3">`+evs.map(e=>`
+    <div class="event-card" onclick="adminViewReport('${e.id}')">
+      <div class="ec-top">
+        <div><div class="ec-type">${em[e.tipo]||'📅'} ${e.tipo}</div><div class="ec-name">${e.nombre}</div><div class="ec-date">📍 ${e.lugar} · ${fmtDate(e.fecha)}</div></div>
+        <div class="badge ${e.status==='active'?'active':'archived'}">${e.status==='active'?'Activo':'Archivado'}</div>
+      </div>
+      <div class="ec-bottom">
+        <div style="display:flex;gap:6px"><div class="ec-sp-pill">${e.marca}</div><div class="ec-sp-pill">${fmtNum(e.asistentes)} asist.</div></div>
+        <div style="display:flex;gap:4px">
+          <button class="icon-btn" title="Ver reporte" onclick="event.stopPropagation();adminViewReport('${e.id}')">👁</button>
+          <button class="icon-btn" title="Eliminar" onclick="event.stopPropagation();deleteEvent('${e.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('')+`</div>`;
+}
+
+function renderEventsTable(){
+  const evs=DB.events;
+  document.getElementById('evCount').textContent=evs.length+' eventos';
+  const em={festival:'🎵',deportivo:'⚽',retail:'🏪',corporativo:'💼'};
+  document.getElementById('eventsTableBody').innerHTML=evs.length?evs.map(e=>`<tr>
+    <td><strong>${e.nombre}</strong><br><span style="font-size:11px;color:var(--text3)">${e.lugar}</span></td>
+    <td style="font-family:var(--font-m);font-size:11px">${fmtDate(e.fecha)}</td>
+    <td>${em[e.tipo]||''} ${e.tipo}</td>
+    <td><span class="ec-sp-pill">${e.marca}</span></td>
+    <td style="font-family:var(--font-m);font-size:12px">${fmtCLP(e.inversion)}</td>
+    <td><div class="badge ${e.status==='active'?'active':'archived'}">${e.status==='active'?'Activo':'Archivado'}</div></td>
+    <td><button class="icon-btn" onclick="adminViewReport('${e.id}')">👁</button> <button class="icon-btn" onclick="deleteEvent('${e.id}')">🗑</button></td>
+  </tr>`).join(''):`<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:40px">Sin eventos aún</td></tr>`;
+}
+
+function renderClientsTable(){
+  const cls=DB.clients,evs=DB.events;
+  document.getElementById('clientsTableBody').innerHTML=cls.length?cls.map(c=>{
+    const ev=evs.find(e=>e.id===c.eventoId);
+    return `<tr><td><strong>${c.marca}</strong></td><td style="font-family:var(--font-m);font-size:12px">${c.user}</td><td style="font-family:var(--font-m);font-size:12px;color:var(--text3)">${c.pass}</td><td style="font-size:12px">${ev?ev.nombre:'—'}</td><td><div class="badge ${c.status==='active'?'active':'archived'}">${c.status==='active'?'Activo':'Inactivo'}</div></td><td><button class="icon-btn" onclick="deleteClient('${c.id}')">🗑</button></td></tr>`;
+  }).join(''):`<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px">Sin clientes</td></tr>`;
+}
+
+// ══ NOTIFICATIONS ══
+function renderAdminNotifications(){
+  const notifs=DB.notifications;
+  const sel=document.getElementById('notif_dest');
+  sel.innerHTML=`<option value="all">Todos los clientes</option>`+DB.clients.map(c=>`<option value="${c.user}">${c.marca} (${c.user})</option>`).join('');
+  const el=document.getElementById('adminNotifList');
+  if(!notifs.length){el.innerHTML=`<div class="empty-state"><div class="ei">🔔</div><p>Sin notificaciones enviadas aún</p></div>`;return;}
+  const tipos={report:'📊',update:'🔄',renewal:'🎯',info:'ℹ️'};
+  el.innerHTML=notifs.slice().reverse().map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}">
+      <div class="notif-icon">${tipos[n.tipo]||'📣'}</div>
+      <div class="notif-content">
+        <div class="notif-title">Para: ${n.dest==='all'?'Todos los clientes':n.dest} · ${n.tipo}</div>
+        <div class="notif-body">${n.msg}</div>
+        <div class="notif-time">${new Date(n.fecha).toLocaleString('es-CL')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function sendNotification(){
+  const dest=document.getElementById('notif_dest').value;
+  const tipo=document.getElementById('notif_tipo').value;
+  const msg=document.getElementById('notif_msg').value.trim();
+  if(!msg){alert('Escribe un mensaje');return;}
+  const notifs=DB.notifications;
+  notifs.push({id:'n'+Date.now(),dest,tipo,msg,fecha:new Date().toISOString(),read:false});
+  DB.notifications=notifs;
+  document.getElementById('notif_msg').value='';
+  renderAdminNotifications();
+  renderAdmin();
+  alert('✅ Notificación enviada correctamente');
+}
+
+// ══ DEMO REQUESTS ══
+function submitDemoRequest(){
+  const nombre=document.getElementById('demo_nombre').value.trim();
+  const empresa=document.getElementById('demo_empresa').value.trim();
+  const email=document.getElementById('demo_email').value.trim();
+  if(!nombre||!empresa||!email){alert('Completa al menos nombre, empresa y email');return;}
+  const demos=DB.demoRequests;
+  demos.push({id:'d'+Date.now(),nombre,empresa,email,tel:document.getElementById('demo_tel').value,plan:document.getElementById('demo_plan').value,tipo:document.getElementById('demo_tipo').value,msg:document.getElementById('demo_msg').value,fecha:new Date().toISOString(),status:'Pendiente'});
+  DB.demoRequests=demos;
+  ['demo_nombre','demo_empresa','demo_email','demo_tel','demo_msg'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('demoSuccess').style.display='block';
+  setTimeout(()=>document.getElementById('demoSuccess').style.display='none',3000);
+  renderDemoTable();
+}
+
+function renderDemoTable(){
+  const demos=DB.demoRequests;
+  document.getElementById('demoCount').textContent=demos.length+' solicitudes';
+  document.getElementById('demoTableBody').innerHTML=demos.length?demos.slice().reverse().map(d=>`<tr>
+    <td><strong>${d.empresa}</strong></td>
+    <td style="font-size:12px">${d.nombre}<br><span style="color:var(--text3)">${d.email}</span></td>
+    <td><span class="ec-sp-pill">${d.plan}</span></td>
+    <td style="font-family:var(--font-m);font-size:11px">${new Date(d.fecha).toLocaleDateString('es-CL')}</td>
+    <td><div class="badge draft">${d.status}</div></td>
+  </tr>`).join(''):`<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:30px">Sin solicitudes aún</td></tr>`;
+}
+
+function toggleFaq(el){el.classList.toggle('open')}
+
+// ══ EVENT CRUD ══
+function openNewEventModal(){
+  ['ne_nombre','ne_lugar','ne_marca','ne_inv','ne_seg','ne_vallas','ne_menciones','ne_fotos','ne_asistentes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('ne_fecha').value='';
+  openModal('newEventModal');
+}
+function saveEvent(){
+  const nombre=document.getElementById('ne_nombre').value.trim();
+  const fecha=document.getElementById('ne_fecha').value;
+  const marca=document.getElementById('ne_marca').value.trim();
+  const inversion=parseInt(document.getElementById('ne_inv').value)||0;
+  const asistentes=parseInt(document.getElementById('ne_asistentes').value)||0;
+  if(!nombre||!fecha||!marca||!inversion){alert('Completa los campos obligatorios (*)');return;}
+  const ev={id:'ev'+Date.now(),nombre,fecha,tipo:document.getElementById('ne_tipo').value,lugar:document.getElementById('ne_lugar').value||'Sin especificar',asistentes,marca,categoria:document.getElementById('ne_cat').value,nivel:document.getElementById('ne_nivel').value,inversion,segundos:parseInt(document.getElementById('ne_seg').value)||0,vallas:parseInt(document.getElementById('ne_vallas').value)||0,menciones:parseInt(document.getElementById('ne_menciones').value)||0,fotos:parseInt(document.getElementById('ne_fotos').value)||0,status:'active',creado:new Date().toISOString()};
+  const evs=DB.events;evs.push(ev);DB.events=evs;
+  closeModal('newEventModal');renderAdmin();adminViewReport(ev.id);
+}
+function deleteEvent(id){
+  if(!confirm('¿Eliminar este evento?'))return;
+  DB.events=DB.events.filter(e=>e.id!==id);
+  DB.clients=DB.clients.filter(c=>c.eventoId!==id);
+  renderAdmin();
+}
+function openNewClientModal(){
+  document.getElementById('nc_marca').value='';document.getElementById('nc_user').value='';document.getElementById('nc_pass').value='';document.getElementById('nc_sponsor').value='';
+  document.getElementById('nc_evento').innerHTML=DB.events.map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('');
+  openModal('newClientModal');
+}
+function saveClient(){
+  const marca=document.getElementById('nc_marca').value.trim();
+  const user=document.getElementById('nc_user').value.trim();
+  const pass=document.getElementById('nc_pass').value.trim();
+  const eventoId=document.getElementById('nc_evento').value;
+  const sponsor=document.getElementById('nc_sponsor').value.trim();
+  if(!marca||!user||!pass){alert('Completa todos los campos');return;}
+  if(DB.clients.find(c=>c.user===user)){alert('Ese usuario ya existe');return;}
+  const cls=DB.clients;cls.push({id:'cl'+Date.now(),marca,user,pass,eventoId,sponsor:sponsor||marca,status:'active'});
+  DB.clients=cls;closeModal('newClientModal');renderAdmin();
+}
+function deleteClient(id){if(!confirm('¿Eliminar este acceso?'))return;DB.clients=DB.clients.filter(c=>c.id!==id);renderAdmin();}
+
+// ══ ADMIN REPORT (inline, navigates to client-style view) ══
+function adminViewReport(id){
+  const e=DB.events.find(ev=>ev.id===id);if(!e)return;
+  // Switch to events page and open a simple alert with report summary
+  adminPage('events',document.querySelectorAll('#adminScreen .sb-item')[1]);
+  const c=compute(e);
+  const ICONS={'Banca y Finanzas':'🏦','Bebidas':'🥤','Tecnología':'💻','Telecomunicaciones':'📡','Retail':'🛒','Automotriz':'🚗','Otro':'🏷'};
+  const grade=c.score>=90?'🥇 Sobresaliente':c.score>=75?'🏆 Excelente':c.score>=60?'✅ Bueno':'⚠️ Mejorable';
+  // Show in a floating preview
+  showReportPreview(e,c,ICONS,grade);
+}
+
+let previewOpen=false;
+function showReportPreview(e,c,ICONS,grade){
+  let prev=document.getElementById('reportPreview');
+  if(!prev){prev=document.createElement('div');prev.id='reportPreview';prev.style.cssText='position:fixed;top:0;right:0;width:560px;height:100vh;background:var(--surface);border-left:1px solid var(--border2);z-index:200;overflow-y:auto;box-shadow:-20px 0 60px rgba(0,0,0,.5);transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1)';document.body.appendChild(prev);}
+  prev.innerHTML=`
+    <div style="padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1">
+      <div style="font-family:var(--font-d);font-size:18px;letter-spacing:1px">REPORTE — ${e.marca.toUpperCase()}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sec" onclick="exportPreviewPDF()">🖨 PDF</button>
+        <button class="modal-close" onclick="closePreview()" style="width:32px;height:32px">✕</button>
+      </div>
+    </div>
+    <div style="padding:24px" id="previewBody">
+      <div class="report-sponsor-hd" style="margin-bottom:16px">
+        <div class="rsh-left"><div class="rsh-icon">${ICONS[e.categoria]||'🏷'}</div>
+          <div><div class="rsh-name">${e.marca.toUpperCase()}</div>
+          <div class="rsh-meta">${e.nombre}<span class="rsh-nivel">${e.nivel}</span></div></div>
+        </div>
+        <div class="score-box"><div class="score-lbl">Score</div><div class="score-big" style="font-size:40px">${c.score}<span class="score-max" style="font-size:14px">/100</span></div><div class="score-grade">${grade}</div></div>
+      </div>
+      <div class="g2" style="margin-bottom:16px">
+        ${[{i:'👁',v:fmtNum(c.imp_total),l:'Impresiones',hi:true},{i:'📈',v:c.roi_mult+'x',l:'ROI',hi:true},{i:'⏱',v:e.segundos+'s',l:'En pantalla',hi:false},{i:'💬',v:fmtNum(e.menciones),l:'Menciones',hi:false}].map(k=>`<div class="kpi ${k.hi?'hi':''}"><div class="kpi-icon">${k.i}</div><div class="kpi-val ${k.hi?'acc':''}" style="font-size:28px">${k.v}</div><div class="kpi-label">${k.l}</div></div>`).join('')}
+      </div>
+      <div class="roi-row" style="margin-bottom:16px">
+        <div class="roi-block"><div class="roi-lbl">Inversión</div><div class="roi-num org" style="font-size:32px">${fmtCLP(e.inversion)}</div></div>
+        <div class="roi-sep"></div>
+        <div class="roi-block"><div class="roi-lbl">Valor obtenido</div><div class="roi-num acc" style="font-size:32px">${fmtCLP(c.valor_medios)}</div></div>
+      </div>
+      <div class="roi-verdict" style="margin-bottom:16px">${c.roi_mult>=3?'🚀':'✅'} ROI de <strong style="color:var(--accent);margin:0 4px">${c.roi_mult}x</strong> — ${c.roi_mult>=3?'Caso ideal para renovación':'Inversión rentable'}</div>
+      <div class="panel"><div class="panel-hd"><span class="panel-title">Insights clave</span></div><div class="panel-bd">
+        ${[{ico:'📊',t:'ROI '+c.roi_mult+'x',b:`${fmtCLP(c.valor_medios)} en valor de medios vs ${fmtCLP(e.inversion)} invertidos.`},{ico:'⏱',t:'Tiempo en pantalla',b:`${e.segundos}s equivalen a ${c.t_min}min de TV en horario estelar.`},{ico:'📸',t:'UGC generado',b:`${fmtNum(e.fotos)} fotos orgánicas con el logo en RRSS.`}].map(i=>`<div class="insight"><div class="insight-ico">${i.ico}</div><div><div class="insight-title">${i.t}</div><div class="insight-body">${i.b}</div></div></div>`).join('')}
+      </div></div>
+    </div>`;
+  setTimeout(()=>prev.style.transform='translateX(0)',10);
+  previewOpen=true;
+}
+function closePreview(){const p=document.getElementById('reportPreview');if(p){p.style.transform='translateX(100%)';setTimeout(()=>p.remove(),300);previewOpen=false;}}
+function exportPreviewPDF(){window.print();}
+
+// ══ CLIENT RENDER ══
+function renderClient(client){
+  const e=DB.events.find(ev=>ev.id===client.eventoId);
+  const ICONS={'Banca y Finanzas':'🏦','Bebidas':'🥤','Tecnología':'💻','Telecomunicaciones':'📡','Retail':'🛒','Automotriz':'🚗','Otro':'🏷'};
+  if(!e){document.getElementById('cl_reportContent').innerHTML='<div class="empty-state"><div class="ei">📭</div><p>Tu reporte aún no está disponible. Contacta al administrador.</p></div>';return;}
+  const c=compute(e);
+  const grade=c.score>=90?'🥇 Sobresaliente':c.score>=75?'🏆 Excelente':c.score>=60?'✅ Bueno':'⚠️ Mejorable';
+  document.getElementById('cl_avatar').textContent=ICONS[e.categoria]||'🏷';
+  document.getElementById('cl_name').textContent=e.marca;
+  document.getElementById('cl_role').textContent=e.nivel;
+  document.getElementById('cl_eventName').textContent=e.marca.toUpperCase();
+  document.getElementById('cl_eventSub').textContent=e.nombre+' · '+fmtDate(e.fecha);
+  // Client notifications
+  const myNotifs=DB.notifications.filter(n=>n.dest==='all'||n.dest===client.user);
+  const unread=myNotifs.filter(n=>!n.read).length;
+  const cnb=document.getElementById('clNotifBadge');cnb.textContent=unread;cnb.style.display=unread?'':'none';
+  renderClientReport(e,c,ICONS,grade);
+  renderClientROI(e,c);
+  renderClientAudience(e,c);
+  renderClientInsights(e,c);
+  renderClientNotifications(client,myNotifs);
+  setTimeout(()=>buildClientCharts(e,c),100);
+}
+
+function clientPage(page,btn){
+  document.querySelectorAll('#clientScreen .sb-item').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('#clientScreen .page').forEach(p=>p.classList.remove('active'));
+  const pid='client'+cap(page);
+  const el=document.getElementById(pid);if(el)el.classList.add('active');
+  if(page==='clientNotif'){markNotifsRead();}
+}
+
+function renderClientNotifications(client,notifs){
+  const tipos={report:'📊',update:'🔄',renewal:'🎯',info:'ℹ️'};
+  document.getElementById('cl_notifContent').innerHTML=`
+    <div style="margin-bottom:20px"><h2 style="font-family:var(--font-d);font-size:32px;letter-spacing:1px">NOTIFICACIONES</h2><p style="color:var(--text2);font-size:13px;margin-top:4px">Comunicaciones de tu equipo SponsTrack</p></div>
+    ${notifs.length?notifs.slice().reverse().map(n=>`
+      <div class="notif-item ${n.read?'':'unread'}">
+        <div class="notif-icon">${tipos[n.tipo]||'📣'}</div>
+        <div class="notif-content">
+          <div class="notif-title">${{report:'Tu reporte está listo',update:'Actualización de datos',renewal:'Recordatorio de renovación',info:'Información'}[n.tipo]||'Notificación'}</div>
+          <div class="notif-body">${n.msg}</div>
+          <div class="notif-time">${new Date(n.fecha).toLocaleString('es-CL')}</div>
+        </div>
+        ${!n.read?'<div class="notif-unread-dot"></div>':''}
+      </div>`).join(''):'<div class="empty-state"><div class="ei">🔔</div><p>Sin notificaciones aún</p></div>'}`;
+}
+
+function markNotifsRead(){
+  const notifs=DB.notifications.map(n=>({...n,read:true}));
+  DB.notifications=notifs;
+  document.getElementById('clNotifBadge').style.display='none';
+}
+
+// ══ CLIENT PAGES ══
+function renderClientReport(e,c,ICONS,grade){
+  document.getElementById('cl_reportContent').innerHTML=`
+  <div class="client-welcome"><div class="cw-event">📅 ${e.tipo.toUpperCase()} · ${fmtDate(e.fecha)}</div><div class="cw-title">${e.nombre}</div><div class="cw-sub">Reporte exclusivo para <strong>${e.marca}</strong> · ${e.nivel} · ${e.lugar}</div></div>
+  <div class="report-sponsor-hd" style="margin-bottom:18px">
+    <div class="rsh-left"><div class="rsh-icon">${ICONS[e.categoria]||'🏷'}</div><div><div class="rsh-name">${e.marca.toUpperCase()}</div><div class="rsh-meta">${e.nivel}<span class="rsh-nivel">${e.categoria}</span></div></div></div>
+    <div class="score-box"><div class="score-lbl">SponsTrack Score</div><div class="score-big">${c.score}<span class="score-max">/100</span></div><div class="score-grade">${grade}</div></div>
+  </div>
+  <div class="g4 mb">
+    ${[{i:'👁',v:fmtNum(c.imp_total),l:'Impresiones totales',t:'Presencial + digital',hi:true},{i:'👥',v:fmtNum(e.asistentes),l:'Asistentes',t:'Aforo completo',hi:false},{i:'⏱',v:c.t_min+':'+String(e.segundos%60).padStart(2,'0'),l:'Min. en pantalla',t:'Exposición directa',hi:false},{i:'💬',v:fmtNum(e.menciones),l:'Menciones orgánicas',t:'Sin paid media',hi:false}].map(k=>`<div class="kpi ${k.hi?'hi':''}"><div class="kpi-icon">${k.i}</div><div class="kpi-val ${k.hi?'acc':''}">${k.v}</div><div class="kpi-label">${k.l}</div><div class="kpi-trend">${k.t}</div></div>`).join('')}
+  </div>
+  <div class="g2 mb">
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Impresiones por hora</span></div><div class="panel-bd"><div class="ch220"><canvas id="cl_imp"></canvas></div></div></div>
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Mix de canales</span></div><div class="panel-bd"><div class="ch220"><canvas id="cl_ch"></canvas></div></div>
+  </div>
+  <div class="g2 mb">
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Momentos de mayor exposición</span></div>
+      <div class="panel-bd" style="padding:0 22px">
+        ${['13:15|Apertura — Logo bienvenida|+'+fmtNum(Math.round(e.asistentes*.3))+' imp.','15:40|Peak de ingreso|'+fmtNum(Math.round(e.asistentes*.6))+' personas','16:55|Activación en escenario|Mención MC + pantalla 120s','18:45|Headliner — máx. audiencia|Logo 8x en stream','20:10|Cierre del evento|Agradecimiento en pantalla'].map((t,i)=>{const[time,tit,val]=t.split('|');return`<div class="tl-item"><div class="tl-dot ${i===4?'dim':''}"></div><div><div class="tl-time">${time}</div><div class="tl-t">${tit}</div><div class="tl-v">${val}</div></div></div>`;}).join('')}
+      </div>
+    </div>
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Vs. otros sponsors</span></div>
+      <div class="panel-bd" style="padding:0 22px">
+        ${[[e.marca,c.score,true],['Entel',Math.max(30,c.score-12),false],['Coca-Cola',Math.max(25,c.score-18),false],['Adidas',Math.max(20,c.score-24),false],['Audi',Math.max(15,c.score-33),false]].map(([name,score,first],i)=>`<div class="comp-row"><div class="comp-rank ${first?'first'}">${i+1}</div><div class="comp-name">${name}</div><div class="comp-bar-wrap"><div class="comp-bar"><div class="comp-fill" style="width:${Math.round(score/c.score*100)}%;background:${first?'var(--accent)':'var(--border2)'}"></div></div></div><div class="comp-score">${score}/100</div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderClientROI(e,c){
+  const breakdown=[{concepto:'Pantalla principal / LED',detalle:e.segundos+'s',val:Math.round(e.inversion*1.1),pct:38},{concepto:'Vallas y señalética',detalle:e.vallas+' puntos',val:Math.round(e.inversion*.55),pct:22},{concepto:'Redes sociales orgánicas',detalle:fmtNum(e.menciones)+' menciones',val:Math.round(e.inversion*.62),pct:25},{concepto:'Contenido UGC',detalle:fmtNum(e.fotos)+' fotos',val:Math.round(e.inversion*.4),pct:15}];
+  document.getElementById('cl_roiContent').innerHTML=`
+  <div class="panel mb"><div class="panel-hd"><span class="panel-title">ROI & Valor equivalente en medios</span></div>
+    <div class="panel-bd">
+      <div class="roi-row"><div class="roi-block"><div class="roi-lbl">Inversión</div><div class="roi-num org">${fmtCLP(e.inversion)}</div></div><div class="roi-sep"></div><div class="roi-block"><div class="roi-lbl">Valor obtenido</div><div class="roi-num acc">${fmtCLP(c.valor_medios)}</div></div><div class="roi-sep"></div><div class="roi-block"><div class="roi-lbl">ROI</div><div class="roi-num grn">${c.roi_mult}x</div></div></div>
+      <div class="roi-verdict" style="margin-bottom:20px">${c.roi_mult>=3?'🚀':'✅'} Por cada peso invertido, <strong style="color:var(--text);margin:0 4px">${e.marca}</strong> obtuvo <strong style="color:var(--accent);margin:0 4px">${c.roi_mult} pesos</strong> en valor equivalente de medios.</div>
+      <div class="ch180"><canvas id="cl_roi"></canvas></div>
+    </div>
+  </div>
+  <div class="panel"><div class="panel-hd"><span class="panel-title">Desglose por canal</span></div>
+    <div style="overflow-x:auto"><table class="vtbl"><thead><tr><th>Canal</th><th>Detalle</th><th>Valor equiv.</th><th style="width:110px">%</th></tr></thead><tbody>
+      ${breakdown.map(r=>`<tr><td>${r.concepto}</td><td style="font-size:11px;color:var(--text3)">${r.detalle}</td><td class="vm">${fmtCLP(r.val)}</td><td><div class="vbar"><div class="vbar-f" style="width:${r.pct}%"></div></div><div style="font-family:var(--font-m);font-size:9px;color:var(--text3);margin-top:2px">${r.pct}%</div></td></tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+function renderClientAudience(e,c){
+  document.getElementById('cl_audContent').innerHTML=`
+  <div class="g2 mb">
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Perfil de audiencia</span></div><div class="panel-bd">
+      ${[['18–24 años',34,'#C8F135'],['25–35 años',41,'#38B6FF'],['36–45 años',18,'#FF4F33'],['46+ años',7,'#F5A623'],['Masculino',52,'#C8F135'],['Femenino',48,'#38B6FF']].map(([l,v,col])=>`<div class="aud-row"><div class="aud-lbl">${l} <span>${v}%</span></div><div class="aud-bar"><div class="aud-fill" style="width:${v}%;background:${col}"></div></div></div>`).join('')}
+    </div></div>
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Distribución regional</span></div><div class="panel-bd">
+      ${[['R. Metropolitana',68],['Valparaíso',12],['Biobío',9],['Otras regiones',11]].map(([l,v])=>`<div class="aud-row"><div class="aud-lbl">${l} <span>${v}%</span></div><div class="aud-bar"><div class="aud-fill" style="width:${v}%;background:var(--blue)"></div></div></div>`).join('')}
+      <div style="margin-top:20px"><div class="ch180"><canvas id="cl_aud"></canvas></div></div>
+    </div></div>
+  </div>
+  <div class="panel"><div class="panel-hd"><span class="panel-title">Contenido generado por usuarios</span></div><div class="panel-bd">
+    <div class="g3">${[['📸',fmtNum(e.fotos),'Fotos con logo en RRSS'],['📱',fmtNum(Math.round(e.fotos*.62)),'Instagram & TikTok'],['🔁',fmtNum(e.menciones),'Menciones orgánicas']].map(([i,v,l])=>`<div class="kpi"><div class="kpi-icon">${i}</div><div class="kpi-val acc">${v}</div><div class="kpi-label">${l}</div></div>`).join('')}
+    </div>
+  </div></div>`;
+}
+
+function renderClientInsights(e,c){
+  const mult=c.roi_mult;
+  document.getElementById('cl_insContent').innerHTML=`
+  <div class="panel"><div class="panel-hd"><span class="panel-title">💡 Análisis SponsTrack — ${e.marca}</span></div><div class="panel-bd">
+    ${[{ico:mult>=3?'🚀':'📊',title:mult>=3?'ROI sobresaliente — Renovar ya':'ROI positivo',body:`Con un retorno de ${c.roi_mult}x, ${e.marca} obtuvo ${fmtCLP(c.valor_medios)} en valor de medios por ${fmtCLP(e.inversion)} invertidos. ${mult>=3?'Caso ideal para presentar a dirección y renovar contrato.':'Inversión rentable con oportunidades de mejora.'}`},
+    {ico:'⏱',title:'Tiempo en pantalla vs benchmark',body:`${e.segundos}s de exposición equivalen a ${c.t_min} minutos de TV en horario estelar. ${e.segundos>=2400?'Cumplimiento óptimo del nivel '+e.nivel+'.':'Se recomienda negociar más espacio en pantalla.'}`},
+    {ico:'📸',title:'Impacto orgánico en redes',body:`${fmtNum(e.fotos)} fotos con el logo de ${e.marca} alcanzaron la demografía clave de 18–35 años sin inversión adicional en paid media.`},
+    {ico:'🎯',title:'Recomendación para renovación',body:`Proponer para el próximo contrato: activaciones digitales pre-evento (+15% alcance), zona exclusiva interactiva, y mención en newsletters del organizador (+${fmtNum(Math.round(e.asistentes*1.8))} impresiones adicionales).`}
+    ].map(i=>`<div class="insight"><div class="insight-ico">${i.ico}</div><div><div class="insight-title">${i.title}</div><div class="insight-body">${i.body}</div></div></div>`).join('')}
+  </div></div>`;
+}
+
+// ══ CHARTS ══
+let activeCharts={};
+function destroyAllCharts(){Object.values(activeCharts).forEach(c=>{try{c.destroy()}catch{}});activeCharts={};}
+function dChart(id){const ex=Chart.getChart(id);if(ex)ex.destroy();}
+
+function buildClientCharts(e,c){
+  const impBase=Math.round(c.imp_presencial/8);
+  const impData=[.45,.60,.72,.88,1.0,.95,.82,.65].map(f=>Math.round(impBase*f));
+  dChart('cl_imp');
+  activeCharts.cl_imp=new Chart(document.getElementById('cl_imp'),{type:'bar',data:{labels:['12h','13h','14h','15h','16h','17h','18h','19h'],datasets:[{data:impData,backgroundColor:'rgba(200,241,53,.7)',borderColor:'#C8F135',borderWidth:1,borderRadius:3}]},options:mkOpts()});
+  dChart('cl_ch');
+  activeCharts.cl_ch=new Chart(document.getElementById('cl_ch'),{type:'doughnut',data:{labels:['Pantalla','Vallas','RRSS','Fotos UGC'],datasets:[{data:[38,22,25,15],backgroundColor:['#C8F135','#38B6FF','#FF4F33','#F5A623'],borderColor:'#131619',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#8D96A8',font:{family:'JetBrains Mono',size:10},padding:10,boxWidth:10}}},cutout:'65%'}});
+  setTimeout(()=>{
+    const roiEl=document.getElementById('cl_roi');
+    if(roiEl){dChart('cl_roi');activeCharts.cl_roi=new Chart(roiEl,{type:'bar',data:{labels:['Inversión','Valor en medios','Ganancia neta'],datasets:[{data:[e.inversion,c.valor_medios,c.ganancia],backgroundColor:['rgba(245,166,35,.6)','rgba(200,241,53,.6)','rgba(46,204,113,.6)'],borderColor:['#F5A623','#C8F135','#2ECC71'],borderWidth:1,borderRadius:4}]},options:mkOpts(true)});}
+    const audEl=document.getElementById('cl_aud');
+    if(audEl){dChart('cl_aud');activeCharts.cl_aud=new Chart(audEl,{type:'doughnut',data:{labels:['R.Metropolitana','Valparaíso','Biobío','Otras'],datasets:[{data:[68,12,9,11],backgroundColor:['#38B6FF','rgba(56,182,255,.5)','rgba(56,182,255,.3)','rgba(56,182,255,.15)'],borderColor:'#131619',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#8D96A8',font:{family:'JetBrains Mono',size:10},padding:10,boxWidth:10}}},cutout:'60%'}});}
+  },200);
+}
+
+// ══ PDF EXPORT ══
+function exportPDF(){
+  const originalTitle=document.title;
+  document.title='SponsTrack_Reporte_'+new Date().toISOString().slice(0,10);
+  window.print();
+  document.title=originalTitle;
+}
+
+// ══ CHART OPTIONS ══
+function mkOpts(money=false){
+  return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#131619',borderColor:'#262B34',borderWidth:1,titleColor:'#EDF0F5',bodyColor:'#8D96A8',callbacks:{label:ctx=>money?' '+fmtCLP(ctx.raw):' '+fmtNum(ctx.raw)}}},scales:{x:{grid:{color:'#1C1F26'},ticks:{color:'#464E5C',font:{family:'JetBrains Mono',size:10}}},y:{grid:{color:'#1C1F26'},ticks:{color:'#464E5C',font:{family:'JetBrains Mono',size:10},callback:v=>money?fmtCLP(v):fmtNum(v)}}}};
+}
+
+// ══ COMPUTE ══
+function compute(e){
+  const imp_presencial=Math.round(e.asistentes*3.2);
+  const imp_digital=e.menciones*420+e.fotos*38;
+  const imp_total=imp_presencial+imp_digital;
+  const valor_medios=Math.round(e.inversion*(2.8+e.vallas*0.06+e.segundos*0.0004));
+  const roi_mult=parseFloat((valor_medios/e.inversion).toFixed(1));
+  const score=Math.min(100,Math.round(60+(e.segundos/3600)*15+(e.vallas/20)*10+(e.menciones/5000)*10+(e.fotos/20000)*5));
+  const ganancia=valor_medios-e.inversion;
+  const t_min=Math.floor(e.segundos/60);
+  const t_sec=e.segundos%60;
+  return{imp_presencial,imp_digital,imp_total,valor_medios,roi_mult,ganancia,score,t_min,t_sec};
+}
+
+// ══ HELPERS ══
+function fmtCLP(n){if(n>=1e9)return'$'+(n/1e9).toFixed(1)+'B';if(n>=1e6)return'$'+Math.round(n/1e6)+'M';return'$'+n.toLocaleString('es-CL')}
+function fmtNum(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return String(n)}
+function fmtDate(s){try{return new Date(s+'T12:00:00').toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'})}catch{return s}}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
+// ══ INIT ══
+Chart.defaults.color='#8D96A8';Chart.defaults.font.family='DM Sans';
+seedIfEmpty();
+document.querySelectorAll('.screen').forEach(s=>{s.style.display=s.classList.contains('active')?'flex':'none'});
+</script>
+</body>
+</html>
