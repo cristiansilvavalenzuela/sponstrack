@@ -714,33 +714,39 @@ let currentUser=null, loginRole='admin';
 
 function switchLoginTab(role){
   loginRole=role;
-  document.querySelectorAll('.ltab').forEach((t,i)=>t.classList.toggle('active',(i===0&&role==='admin')||(i===1&&role==='client')));
-  const badge=document.getElementById('loginRoleBadge');
-  const hint=document.getElementById('loginHint');
+  document.querySelectorAll('.ltab').forEach(function(t,i){t.classList.toggle('active',(i===0&&role==='admin')||(i===1&&role==='client'));});
+  var badge=document.getElementById('loginRoleBadge');
+  var hint=document.getElementById('loginHint');
   if(role==='admin'){
-    badge.innerHTML='<div class="rb-icon">⚙️</div><div><div class="rb-title">Acceso Administrador</div><div class="rb-text">Control total · Crea y gestiona eventos</div></div>';
-    hint.innerHTML='<strong>Admin:</strong> admin / admin123 &nbsp;·&nbsp; <strong>Cliente:</strong> santander / marca123';
+    badge.innerHTML="<div class=\"rb-icon\">&#9881;</div><div><div class=\"rb-title\">Acceso Administrador</div><div class=\"rb-text\">Control total - Crea y gestiona eventos</div></div>";
+    hint.innerHTML="<strong>Admin:</strong> admin / admin123 &nbsp;&middot;&nbsp; <strong>Cliente:</strong> santander / marca123";
     document.getElementById('loginUser').value='admin';
     document.getElementById('loginPass').value='admin123';
   } else {
-    badge.innerHTML='<div class="rb-icon">🏷</div><div><div class="rb-title">Acceso de Marca / Sponsor</div><div class="rb-text">Ve tu reporte exclusivo del evento</div></div>';
-    hint.innerHTML='<strong>Demo:</strong> santander / marca123 &nbsp;·&nbsp; claro / marca456';
+    badge.innerHTML="<div class=\"rb-icon\">&#127991;</div><div><div class=\"rb-title\">Acceso de Marca / Sponsor</div><div class=\"rb-text\">Ve tu reporte exclusivo del evento</div></div>";
+    hint.innerHTML="<strong>Demo:</strong> santander / marca123 &nbsp;&middot;&nbsp; claro / marca456";
     document.getElementById('loginUser').value='santander';
     document.getElementById('loginPass').value='marca123';
   }
 }
 
 function doLogin(){
-  const u=document.getElementById('loginUser').value.trim();
-  const p=document.getElementById('loginPass').value.trim();
-  document.getElementById('loginError').style.display='none';
-  if(loginRole==='admin'){
-    if(u==='admin'&&p==='admin123'){currentUser={role:'admin'};showScreen('adminScreen');renderAdmin();}
-    else document.getElementById('loginError').style.display='block';
-  } else {
-    const c=DB.clients.find(c=>c.user===u&&c.pass===p&&c.status==='active');
-    if(c){currentUser={role:'client',client:c};showScreen('clientScreen');renderClient(c);}
-    else document.getElementById('loginError').style.display='block';
+  try{
+    const u=document.getElementById('loginUser').value.trim();
+    const p=document.getElementById('loginPass').value.trim();
+    document.getElementById('loginError').style.display='none';
+    if(loginRole==='admin'){
+      if(u==='admin'&&p==='admin123'){currentUser={role:'admin'};showScreen('adminScreen');renderAdmin();}
+      else document.getElementById('loginError').style.display='block';
+    } else {
+      const c=DB.clients.find(c=>c.user===u&&c.pass===p&&c.status==='active');
+      if(c){currentUser={role:'client',client:c};showScreen('clientScreen');renderClient(c);}
+      else document.getElementById('loginError').style.display='block';
+    }
+  }catch(e){
+    console.error('Login error:',e);
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('loginError').textContent='Error al ingresar. Recarga la página e intenta de nuevo.';
   }
 }
 
@@ -1062,7 +1068,7 @@ function renderClientReport(e,c,ICONS,grade){
     </div>
     <div class="panel"><div class="panel-hd"><span class="panel-title">Vs. otros sponsors</span></div>
       <div class="panel-bd" style="padding:0 22px">
-        ${[[e.marca,c.score,true],['Entel',Math.max(30,c.score-12),false],['Coca-Cola',Math.max(25,c.score-18),false],['Adidas',Math.max(20,c.score-24),false],['Audi',Math.max(15,c.score-33),false]].map(([name,score,first],i)=>`<div class="comp-row"><div class="comp-rank ${first?'first'}">${i+1}</div><div class="comp-name">${name}</div><div class="comp-bar-wrap"><div class="comp-bar"><div class="comp-fill" style="width:${Math.round(score/c.score*100)}%;background:${first?'var(--accent)':'var(--border2)'}"></div></div></div><div class="comp-score">${score}/100</div></div>`).join('')}
+        ${[[e.marca,c.score,true],['Entel',Math.max(30,c.score-12),false],['Coca-Cola',Math.max(25,c.score-18),false],['Adidas',Math.max(20,c.score-24),false],['Audi',Math.max(15,c.score-33),false]].map(function(arr,i){var name=arr[0],score=arr[1],first=arr[2];var bg=first?'var(--accent)':'var(--border2)';var rankClass=first?'comp-rank first':'comp-rank';return '<div class="comp-row"><div class="'+rankClass+'">'+( i+1)+'</div><div class="comp-name">'+name+'</div><div class="comp-bar-wrap"><div class="comp-bar"><div class="comp-fill" style="width:'+Math.round(score/c.score*100)+'%;background:'+bg+'"></div></div></div><div class="comp-score">'+score+'/100</div></div>';}).join('')}
       </div>
     </div>
   </div>`;
