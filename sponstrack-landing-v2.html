@@ -42,8 +42,10 @@ nav{
   transition:all .4s ease;
 }
 nav.scrolled{background:rgba(10,11,13,.92);border-bottom-color:var(--rule);backdrop-filter:blur(20px)}
-.nav-logo{font-family:var(--font-d);font-size:24px;letter-spacing:2px;color:var(--sand);text-decoration:none}
+.nav-logo{display:flex;flex-direction:column;text-decoration:none}
+.nav-logo-word{font-family:var(--font-d);font-size:24px;letter-spacing:2px;color:var(--sand);line-height:1}
 .nav-logo em{color:var(--lime);font-style:normal}
+.nav-logo-tag{font-family:var(--font-m);font-size:8px;letter-spacing:.22em;color:var(--sand3);text-transform:uppercase;margin-top:3px}
 .nav-links{display:flex;gap:36px;list-style:none}
 .nav-links a{font-size:13px;font-weight:500;letter-spacing:.04em;color:var(--sand3);text-decoration:none;transition:color .2s}
 .nav-links a:hover{color:var(--sand)}
@@ -380,19 +382,33 @@ footer{padding:36px 48px;border-top:1px solid var(--rule);display:flex;align-ite
   .hero-body{grid-template-columns:1fr}
   .prob-grid{grid-template-columns:1fr}
   .prob-visual{display:none}
-  .audience-grid,.steps-grid,.plans,.logos-row,.testimonial-grid,.metrics-grid,.eventos-grid{grid-template-columns:1fr}
-  .steps-grid{border:none;gap:2px}
+  .audience-grid,.plans,.logos-row,.testimonial-grid,.metrics-grid,.eventos-grid{grid-template-columns:1fr}
+  .steps-grid{grid-template-columns:1fr 1fr!important;border:none;gap:2px}
   .step,.plan,.logo-item{border:1px solid var(--rule)!important}
   .plans{border:none;gap:16px}
 }
 @media(max-width:768px){
-  nav{padding:0 20px}
+  nav{padding:0 16px}
   .nav-links{display:none}
-  .hero,.section{padding-left:20px;padding-right:20px}
-  section{padding:80px 20px}
-  footer{flex-direction:column;gap:20px;text-align:center}
-  .foot-links{flex-wrap:wrap;justify-content:center}
-  .cta-actions{flex-direction:column}
+  .nav-wa span{display:none}
+  .hero{padding:0 20px 60px;min-height:100svh}
+  .hero-eyebrow{margin-bottom:16px}
+  section{padding:72px 20px}
+  .steps-grid{grid-template-columns:1fr!important}
+  .audience-grid{grid-template-columns:1fr}
+  .audience-card{padding:32px 24px}
+  .ticker-item{padding:0 24px}
+  footer{flex-direction:column;gap:16px;text-align:center;padding:28px 20px}
+  .foot-links{flex-wrap:wrap;justify-content:center;gap:16px}
+  .cta-actions{flex-direction:column;align-items:center}
+  .plans{grid-template-columns:1fr!important;border:none;gap:16px}
+  .plan{border:1px solid var(--rule)!important}
+  .logos-row{flex-wrap:wrap}
+  .logo-item{flex:1 1 30%;border:1px solid var(--rule)!important}
+  .testimonial-grid{grid-template-columns:1fr}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .eventos-grid{grid-template-columns:1fr}
+  .section-h{font-size:clamp(36px,8vw,56px)}
 }
 </style>
 </head>
@@ -400,7 +416,7 @@ footer{padding:36px 48px;border-top:1px solid var(--rule);display:flex;align-ite
 
 <!-- NAV -->
 <nav id="navbar">
-  <a class="nav-logo" href="#">SPONS<em>TRACK</em></a>
+  <a class="nav-logo" href="#"><span class="nav-logo-word">SPONS<em>TRACK</em></span><span class="nav-logo-tag">Sponsor Intelligence Platform</span></a>
   <ul class="nav-links">
     <li><a href="#problema">El problema</a></li>
     <li><a href="#como-funciona">Cómo funciona</a></li>
@@ -452,7 +468,7 @@ footer{padding:36px 48px;border-top:1px solid var(--rule);display:flex;align-ite
 <section id="problema">
   <div class="section-tag">El problema</div>
   <h2 class="section-h">Los sponsors<br>merecen <span class="serif">respuestas.</span></h2>
-  <p class="section-lead">Invertir en sponsorship sin datos es apostar. Y en 2025, ningún CMO debería seguir apostando.</p>
+  <p class="section-lead">Invertir en sponsorship sin datos es apostar. Y en estos tiempos, ningún CMO debería seguir apostando.</p>
   <div class="prob-grid reveal">
     <ul class="prob-list">
       <li class="prob-item">
@@ -537,7 +553,7 @@ footer{padding:36px 48px;border-top:1px solid var(--rule);display:flex;align-ite
   <div class="section-tag">Metodología</div>
   <h2 class="section-h">Simple para ti.<br><span class="serif">Preciso para ellos.</span></h2>
   <p class="section-lead">No necesitas saber de tecnología. Tú ingresas los datos del evento, nosotros generamos el reporte.</p>
-  <div class="steps-grid reveal">
+  <div class="steps-grid reveal" style="grid-template-columns:repeat(5,1fr)">
     <div class="step">
       <div class="step-n">01</div>
       <div class="step-icon">📋</div>
@@ -546,18 +562,24 @@ footer{padding:36px 48px;border-top:1px solid var(--rule);display:flex;align-ite
     </div>
     <div class="step">
       <div class="step-n">02</div>
-      <div class="step-icon">📊</div>
-      <h3>Cargas las métricas</h3>
-      <p>Segundos en pantalla, vallas, menciones en redes sociales y fotos con logo. Datos que ya tienes.</p>
+      <div class="step-icon">🎬</div>
+      <h3>Subes el video</h3>
+      <p>Carga el clip donde aparece tu logo — puede incluir otras marcas. La IA de SponsTrack detecta cada aparición automáticamente.</p>
     </div>
     <div class="step">
       <div class="step-n">03</div>
-      <div class="step-icon">⚡</div>
-      <h3>El sistema genera el reporte</h3>
-      <p>ROI, impresiones, audiencia, comparativa de sponsors y score SponsTrack. Automático e instantáneo.</p>
+      <div class="step-icon">🤖</div>
+      <h3>La IA analiza la visibilidad</h3>
+      <p>Detecta segundos en pantalla, tamaño del logo, posición y contexto. Cada marca recibe su puntuación real de visibilidad.</p>
     </div>
     <div class="step">
       <div class="step-n">04</div>
+      <div class="step-icon">⚡</div>
+      <h3>El sistema genera el reporte</h3>
+      <p>ROI, impresiones, audiencia, comparativa de sponsors y SponsTrack Score. Automático e instantáneo.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">05</div>
       <div class="step-icon">🔗</div>
       <h3>El cliente accede solo</h3>
       <p>Le envías usuario y contraseña. Ingresa a su portal exclusivo, ve su reporte y lo descarga en PDF.</p>
@@ -725,14 +747,14 @@ footer{padding:36px 48px;border-top:1px solid var(--rule);display:flex;align-ite
 
 <!-- FOOTER -->
 <footer>
-  <a class="foot-logo" href="#">SPONS<em>TRACK</em></a>
+  <a class="foot-logo" href="#" style="display:flex;flex-direction:column;text-decoration:none"><span>SPONS<em>TRACK</em></span><span style="font-family:var(--font-m);font-size:8px;letter-spacing:.18em;color:var(--sand3);text-transform:uppercase;margin-top:2px">Sponsor Intelligence Platform</span></a>
   <div class="foot-links">
     <a href="#problema">Qué resolvemos</a>
     <a href="#como-funciona">Cómo funciona</a>
     <a href="#precios">Precios</a>
     <a href="https://wa.me/56912345678" target="_blank">Contacto</a>
   </div>
-  <div class="foot-copy">© 2025 SponsTrack · Santiago, Chile</div>
+  <div class="foot-copy">© 2026 SponsTrack · Santiago, Chile</div>
 </footer>
 
 <!-- WhatsApp flotante -->
